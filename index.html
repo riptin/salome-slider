@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HOMM3 Slider</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="slider-container">
+      <div class="slider">
+        <div class="slides"></div>
+      </div>
+      <div class="navigation">
+        <div class="slider-nav previous">Previous</div>
+        <div class="slider-nav next">Next</div>
+      </div>
+      <div class="settlement-name"></div>
+    </div>
+    <div class="carousel-container"></div>
+    <div class="">
+      <div></div>
+    </div>
+  </body>
+</html>
+
+<script>
+  const slides = [
+    'images/settlements/town-castle.png',
+    'images/settlements/town-conflux.png',
+    'images/settlements/town-cove.png',
+    'images/settlements/town-dungeon.png',
+    'images/settlements/town-factory.png',
+    'images/settlements/town-fortress.png',
+    'images/settlements/town-inferno.png',
+    'images/settlements/town-necropolis.png',
+    'images/settlements/town-rampart.png',
+    'images/settlements/town-stronghold.png',
+    'images/settlements/town-tower.png',
+  ];
+
+  let activeSlideIndex = 0;
+  let slideWidth = 0;
+  let sliderPosition = 0;
+  let numberOfSlides = 0;
+  let slideElements;
+  const slider = document.querySelector(".slider");
+  const slidesContainer = slider.querySelector(".slides");
+  const prevBtm = document.querySelector('.slider-container .previous');
+  const nextBtn = document.querySelector('.slider-container .next');
+  const settlementNameEl = document.querySelector('.slider-container .settlement-name');
+
+  const createSlides = (slides) => {
+    numberOfSlides = slides.length - 1;
+
+    slides.forEach((slide, index) => {
+      slidesContainer.appendChild(createSlide(slide));
+    });
+
+    slideElements = document.querySelectorAll('.slider .slide')
+    addListeners();
+    setActiveTitle(activeSlideIndex);
+  };
+
+  const createSlide = (slideUrl) => {
+    const slide = document.createElement("div");
+    slide.classList.add('slide');
+    slide.style.width = `${slideWidth}px`;
+    slide.style.backgroundImage = `url("${slideUrl}")`;
+
+    return slide;
+  }
+  const getSlideWidth = () => {
+    return document.querySelector('.slider').clientWidth;
+  }
+
+  const setupSlider = (slides) => {
+    slideWidth = getSlideWidth();
+    createSlides(slides);
+    slideElements[activeSlideIndex].classList.add('active');
+  }
+
+  const moveSlider = (direction) => {
+    const previousActiveslide = activeSlideIndex;
+    clearSlideClasses(slideElements);
+
+    if (direction === 'right') {
+      activeSlideIndex++;
+
+    } else {
+      activeSlideIndex--;
+    }
+
+    if (activeSlideIndex < 1) {
+      activeSlideIndex = numberOfSlides;
+    } else if (activeSlideIndex > numberOfSlides) {
+      activeSlideIndex = 0;
+    }
+
+    if (direction === 'right') {
+      slideElements[previousActiveslide].classList.add('exit', 'to-left');
+      slideElements[activeSlideIndex].classList.add('active', 'from-right');
+    } else {
+      slideElements[previousActiveslide].classList.add('exit', 'to-right');
+      slideElements[activeSlideIndex].classList.add('active', 'from-left');
+    }
+
+    setActiveTitle(activeSlideIndex);
+  }
+
+  const clearSlideClasses = (slides) => {
+    slides.forEach((slide) => {
+      slide.classList.remove('active', 'from-left', 'from-right', 'exit', 'to-left', 'to-right');
+    });
+  };
+  
+  const addListeners = () => {
+    prevBtm.addEventListener('click', moveSlider.bind(this, 'left'));
+    nextBtn.addEventListener('click', moveSlider.bind(this, 'right'));
+    window.addEventListener('keydown', (e) => {
+      if (e.keyCode == '37') {
+        moveSlider('left');
+      } else if (e.keyCode == '39') {
+        moveSlider('right');
+      }
+    });
+  };
+
+  const setActiveTitle = (activeSlide) => {
+    const regex = /(?:town-([a-z]*)\.)/mg;
+    const title = regex.exec(slideElements[activeSlide].style.backgroundImage)[1];
+    // const title = slideElements[activeSlide].style.backgroundImage.match(/(?:town-([a-z]*)\.png)/mg);
+
+    settlementNameEl.textContent = title;
+  };
+  
+  setupSlider(slides);
+</script>
